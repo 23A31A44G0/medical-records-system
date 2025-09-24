@@ -1,0 +1,19 @@
+# Render Deployment Configuration
+name: medical-records-system
+type: web
+
+# Build settings
+buildCommand: npm install && npm run build
+startCommand: npm start
+
+# Environment
+node: 18
+
+# Health check
+healthCheckPath: /
+
+# Auto-deploy
+autoDeploy: true
+
+# Resources
+plan: free
