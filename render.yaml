@@ -3,11 +3,11 @@ name: medical-records-system
 type: web
 
 # Build settings
-buildCommand: npm install && npm run build
+buildCommand: npm install
 startCommand: npm start
 
 # Environment
-node: 18
+node: 22
 
 # Health check
 healthCheckPath: /
