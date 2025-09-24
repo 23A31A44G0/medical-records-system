@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Test - Medical Records System</title>
+</head>
+<body>
+    <h1>Medical Records System - Quick Test</h1>
+    
+    <h2>🔐 Step 1: Login</h2>
+    <p>Username: <strong>admin</strong></p>
+    <p>Password: <strong>admin123</strong></p>
+    <button onclick="testLogin()">Test Login</button>
+    <div id="loginResult"></div>
+    
+    <h2>👥 Step 2: Load Patients</h2>
+    <button onclick="testPatients()">Test Patients API</button>
+    <div id="patientsResult"></div>
+    
+    <h2>🗄️ Step 3: MySQL Test</h2>
+    <button onclick="testMySQL()">Test MySQL Connection</button>
+    <div id="mysqlResult"></div>
+    
+    <h2>👥 Step 4: MySQL Patients</h2>
+    <button onclick="testMySQLPatients()">Test MySQL Patients</button>
+    <div id="mysqlPatientsResult"></div>
+    
+    <h2>🔍 Step 5: Session Debug</h2>
+    <button onclick="testSession()">Debug Session</button>
+    <div id="sessionResult"></div>
+
+    <script>
+        async function testLogin() {
+            const result = document.getElementById('loginResult');
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include', // Include cookies/session
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = '<div style="color: green;">✅ Login successful!</div>';
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div style="color: red;">❌ Login failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testPatients() {
+            const result = document.getElementById('patientsResult');
+            try {
+                const response = await fetch('/api/patients', {
+                    credentials: 'include' // Include cookies/session
+                });
+                
+                if (response.ok) {
+                    const patients = await response.json();
+                    result.innerHTML = `<div style="color: green;">✅ Loaded ${patients.length} patients from SQLite</div>`;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div style="color: red;">❌ Failed: ${response.status} - ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testMySQL() {
+            const result = document.getElementById('mysqlResult');
+            try {
+                const response = await fetch('/api/mysql/test');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div style="color: green;">✅ MySQL: ${data.message}</div>`;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div style="color: red;">❌ MySQL failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testMySQLPatients() {
+            const result = document.getElementById('mysqlPatientsResult');
+            try {
+                const response = await fetch('/api/mysql/patients');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div style="color: green;">✅ MySQL: Loaded ${data.count} patients</div>`;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div style="color: red;">❌ MySQL patients failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSession() {
+            const result = document.getElementById('sessionResult');
+            try {
+                const response = await fetch('/api/debug/session', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<div style="color: blue;">🔍 Session: ${JSON.stringify(data, null, 2)}</div>`;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div style="color: red;">❌ Session debug failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div style="color: red;">❌ Network error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

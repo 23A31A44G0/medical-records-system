@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .step { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 3px; cursor: pointer; }
+        .test { background: #007bff; color: white; }
+        .clear { background: #dc3545; color: white; }
+        .result { margin-top: 10px; padding: 10px; border-radius: 3px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #b8daff; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Session Authentication Test</h1>
+    
+    <div class="step">
+        <h2>Step 1: Clear All Cookies</h2>
+        <button class="clear" onclick="clearAllCookies()">Clear All Cookies</button>
+        <div id="clearResult"></div>
+    </div>
+
+    <div class="step">
+        <h2>Step 2: Test Session Creation</h2>
+        <button class="test" onclick="testSessionCreation()">Create Test Session</button>
+        <div id="sessionResult"></div>
+    </div>
+
+    <div class="step">
+        <h2>Step 3: Test Session Retrieval</h2>
+        <button class="test" onclick="testSessionRetrieval()">Get Test Session</button>
+        <div id="retrievalResult"></div>
+    </div>
+
+    <div class="step">
+        <h2>Step 4: Login</h2>
+        <button class="test" onclick="testLogin()">Login (admin/admin123)</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="step">
+        <h2>Step 5: Check Authentication</h2>
+        <button class="test" onclick="testAuth()">Test Patients API</button>
+        <div id="authResult"></div>
+    </div>
+
+    <div class="step">
+        <h2>Step 6: Session Debug</h2>
+        <button class="test" onclick="debugSession()">Debug Session</button>
+        <div id="debugResult"></div>
+    </div>
+
+    <script>
+        function clearAllCookies() {
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            const result = document.getElementById('clearResult');
+            result.innerHTML = '<div class="info">✅ All cookies cleared from browser</div>';
+        }
+
+        async function testSessionCreation() {
+            const result = document.getElementById('sessionResult');
+            try {
+                const response = await fetch('/api/test-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ test: true })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <div class="success">✅ Session created successfully</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div class="error">❌ Session creation failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        async function testSessionRetrieval() {
+            const result = document.getElementById('retrievalResult');
+            try {
+                const response = await fetch('/api/test-session', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <div class="${data.hasTestData ? 'success' : 'error'}">
+                            ${data.hasTestData ? '✅ Session retrieved successfully' : '❌ Session data not found'}
+                        </div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div class="error">❌ Session retrieval failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('loginResult');
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <div class="success">✅ Login successful</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div class="error">❌ Login failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        async function testAuth() {
+            const result = document.getElementById('authResult');
+            try {
+                const response = await fetch('/api/patients', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <div class="success">✅ Authentication successful - Loaded ${data.length} patients</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div class="error">❌ Authentication failed: ${response.status} - ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        async function debugSession() {
+            const result = document.getElementById('debugResult');
+            try {
+                const response = await fetch('/api/debug/session', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <div class="info">🔍 Session Debug Info</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <div class="info">
+                            <strong>Browser Cookies:</strong> ${document.cookie || 'None'}
+                        </div>
+                    `;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `<div class="error">❌ Debug failed: ${error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        // Show current cookies on page load
+        window.onload = function() {
+            console.log('Current cookies:', document.cookie);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Reports Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="loginContainer" class="container">
+        <div class="login-form">
+            <div class="form-header">
+                <i class="fas fa-hospital-alt"></i>
+                <h2>Medical Reports System</h2>
+                <p>Hospital Staff Login</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+            <div class="login-info">
+                <p><strong>Default Login:</strong></p>
+                <p>Username: admin</p>
+                <p>Password: admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainContainer" class="container" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-hospital-alt"></i>
+                    <h1>Medical Reports System</h1>
+                </div>
+                <div class="user-info">
+                    <span id="userWelcome"></span>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">
+                <i class="fas fa-chart-bar"></i> Dashboard
+            </button>
+            <button class="nav-tab" data-tab="patients">
+                <i class="fas fa-users"></i> Patients
+            </button>
+            <button class="nav-tab" data-tab="addPatient">
+                <i class="fas fa-user-plus"></i> Add Patient
+            </button>
+            <button class="nav-tab" data-tab="reports">
+                <i class="fas fa-file-medical"></i> Reports
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content active">
+                <div class="tab-header">
+                    <h2><i class="fas fa-chart-bar"></i> Disease Analytics Dashboard</h2>
+                    <div class="dashboard-controls">
+                        <button id="showFilters" class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filters
+                        </button>
+                        <button id="exportData" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button id="refreshDashboard" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filter Panel -->
+                <div id="filterPanel" class="filter-panel" style="display: none;">
+                    <div class="filter-content">
+                        <h4><i class="fas fa-filter"></i> Filter Dashboard Data</h4>
+                        <div class="filter-grid">
+                            <div class="filter-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="startDate" name="startDate">
+                            </div>
+                            <div class="filter-group">
+                                <label for="endDate">End Date</label>
+                                <input type="date" id="endDate" name="endDate">
+                            </div>
+                            <div class="filter-group">
+                                <label for="diseaseFilter">Disease</label>
+                                <select id="diseaseFilter" name="diseaseFilter">
+                                    <option value="">All Diseases</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="cityFilter">City</label>
+                                <select id="cityFilter" name="cityFilter">
+                                    <option value="">All Cities</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="stateFilter">State</label>
+                                <select id="stateFilter" name="stateFilter">
+                                    <option value="">All States</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button id="applyFilters" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Apply Filters
+                            </button>
+                            <button id="clearFilters" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Cards -->
+                <div class="dashboard-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="summary-content">
+                            <h3 id="totalPatients">0</h3>
+                            <p>Total Patients</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-virus"></i>
+                        </div>
+                        <div class="summary-content">
+                            <h3 id="uniqueDiseases">0</h3>
+                            <p>Unique Diseases</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="summary-content">
+                            <h3 id="affectedAreas">0</h3>
+                            <p>Affected Areas</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <div class="summary-content">
+                            <h3 id="totalReports">0</h3>
+                            <p>Medical Reports</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-pie"></i> Disease Distribution</h3>
+                        <canvas id="diseaseChart" width="400" height="200"></canvas>
+                        <div id="diseaseList" class="disease-list"></div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3><i class="fas fa-map"></i> Disease by Area</h3>
+                        <div id="areaDisease" class="area-disease-container">
+                            <!-- Area disease data will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patients Tab -->
+            <div id="patientsTab" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-users"></i> Patient Management</h2>
+                    <div class="patient-controls">
+                        <div class="search-box">
+                            <input type="text" id="patientSearch" placeholder="Search patients...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <button id="exportPatients" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="patients-grid" id="patientsGrid">
+                    <!-- Patients will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Add Patient Tab -->
+            <div id="addPatientTab" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-user-plus"></i> Add New Patient</h2>
+                </div>
+                <form id="addPatientForm" class="patient-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="patientId">Patient ID</label>
+                            <input type="text" id="patientId" name="patient_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth</label>
+                            <input type="date" id="dateOfBirth" name="date_of_birth">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="diseaseList">Disease Diagnosis</label>
+                            <select id="diseaseList" name="disease_diagnosis">
+                                <option value="">Select Disease</option>
+                                <option value="Diabetes">Diabetes</option>
+                                <option value="Hypertension">Hypertension</option>
+                                <option value="Heart Disease">Heart Disease</option>
+                                <option value="Asthma">Asthma</option>
+                                <option value="Cancer">Cancer</option>
+                                <option value="COVID-19">COVID-19</option>
+                                <option value="Pneumonia">Pneumonia</option>
+                                <option value="Tuberculosis">Tuberculosis</option>
+                                <option value="Malaria">Malaria</option>
+                                <option value="Dengue">Dengue</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" placeholder="Patient's city">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state" placeholder="Patient's state">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="address">Address</label>
+                            <textarea id="address" name="address" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Patient
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reportsTab" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-file-medical"></i> Medical Reports</h2>
+                </div>
+                <div id="reportsContent">
+                    <p class="no-selection">Select a patient to view their medical reports.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalPatientName"></h3>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="patient-details" id="patientDetails">
+                    <!-- Patient details will be loaded here -->
+                </div>
+                
+                <div class="reports-section">
+                    <h4><i class="fas fa-file-medical"></i> Medical Reports</h4>
+                    <div class="upload-section">
+                        <form id="uploadReportForm" enctype="multipart/form-data">
+                            <div class="upload-grid">
+                                <div class="form-group">
+                                    <label for="reportTitle">Report Title</label>
+                                    <input type="text" id="reportTitle" name="report_title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reportDescription">Description</label>
+                                    <textarea id="reportDescription" name="report_description" rows="2"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="medicalFile">Medical File (PDF, JPG, TXT)</label>
+                                    <input type="file" id="medicalFile" name="medical_file" accept=".pdf,.jpg,.jpeg,.txt" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Report
+                            </button>
+                        </form>
+                    </div>
+                    <div class="reports-list" id="patientReports">
+                        <!-- Reports will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="message-container"></div>
+
+    <!-- Edit Patient Modal -->
+    <div id="editPatientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit Patient</h3>
+                <span class="close" id="closeEditModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editPatientForm" class="patient-form">
+                    <input type="hidden" id="editPatientId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editPatientIdField">Patient ID</label>
+                            <input type="text" id="editPatientIdField" name="patient_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFirstName">First Name</label>
+                            <input type="text" id="editFirstName" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLastName">Last Name</label>
+                            <input type="text" id="editLastName" name="last_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDateOfBirth">Date of Birth</label>
+                            <input type="date" id="editDateOfBirth" name="date_of_birth">
+                        </div>
+                        <div class="form-group">
+                            <label for="editGender">Gender</label>
+                            <select id="editGender" name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPhone">Phone</label>
+                            <input type="tel" id="editPhone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="editEmail">Email</label>
+                            <input type="email" id="editEmail" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDiseaseList">Disease Diagnosis</label>
+                            <select id="editDiseaseList" name="disease_diagnosis">
+                                <option value="">Select Disease</option>
+                                <option value="Diabetes">Diabetes</option>
+                                <option value="Hypertension">Hypertension</option>
+                                <option value="Heart Disease">Heart Disease</option>
+                                <option value="Asthma">Asthma</option>
+                                <option value="Cancer">Cancer</option>
+                                <option value="COVID-19">COVID-19</option>
+                                <option value="Pneumonia">Pneumonia</option>
+                                <option value="Tuberculosis">Tuberculosis</option>
+                                <option value="Malaria">Malaria</option>
+                                <option value="Dengue">Dengue</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCity">City</label>
+                            <input type="text" id="editCity" name="city" placeholder="Patient's city">
+                        </div>
+                        <div class="form-group">
+                            <label for="editState">State</label>
+                            <input type="text" id="editState" name="state" placeholder="Patient's state">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="editAddress">Address</label>
+                            <textarea id="editAddress" name="address" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Patient
+                        </button>
+                        <button type="button" id="cancelEdit" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirm Action</h3>
+                <span class="close" id="closeConfirmModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to proceed?</p>
+                <div class="form-actions">
+                    <button id="confirmYes" class="btn btn-danger">
+                        <i class="fas fa-check"></i> Yes
+                    </button>
+                    <button id="confirmNo" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> No
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Preview Modal -->
+    <div id="filePreviewModal" class="modal">
+        <div class="modal-content file-preview-content">
+            <div class="modal-header">
+                <span class="close" id="closePreviewModal">&times;</span>
+                <h2 id="previewFileName">Document Preview</h2>
+                <div class="preview-actions">
+                    <button id="downloadPreviewFile" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button id="extractTextBtn" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Extract Text
+                    </button>
+                </div>
+            </div>
+            <div class="file-preview-container">
+                <div id="filePreviewContent"></div>
+                <div id="extractedTextPanel" style="display: none;">
+                    <h3>Extracted Text:</h3>
+                    <div id="extractedTextContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+    
+    <!-- Offline Status Indicator -->
+    <div id="offlineIndicator" class="offline-indicator" style="display: none;">
+        <i class="fas fa-wifi-slash"></i>
+        <span>Offline Mode - Changes will sync when online</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="offline-storage.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Register service worker for offline functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

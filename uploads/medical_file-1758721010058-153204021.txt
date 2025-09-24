@@ -1,0 +1,22 @@
+Patient Information
+Name: John Smith
+DOB: 01/15/1985
+Medical Record: #12345
+
+Vital Signs:
+Blood Pressure: 120/80 mmHg
+Heart Rate: 75 bpm
+Temperature: 98.6°F
+Respiratory Rate: 16/min
+
+Lab Results:
+Glucose: 95 mg/dL
+Cholesterol: 180 mg/dL
+Hemoglobin: 14.2 g/dL
+
+Medications:
+- Lisinopril 10mg daily
+- Metformin 500mg twice daily
+
+Diagnosis: Type 2 Diabetes Mellitus
+Treatment Plan: Continue current medications, follow-up in 3 months
