@@ -314,11 +314,12 @@ function switchTab(tabName) {
 async function loadPatients() {
     showLoading(true);
     try {
-        const response = await fetch('/api/patients', {
+        const response = await fetch('/api/mysql/patients', {
             credentials: 'include'
         });
         if (response.ok) {
-            allPatients = await response.json();
+            const result = await response.json();
+            allPatients = result.data || result; // Handle MySQL response format
             displayPatients(allPatients);
         } else {
             showMessage('Failed to load patients', 'error');
@@ -336,19 +337,26 @@ function displayPatients(patients) {
         return;
     }
     
-    patientsGrid.innerHTML = patients.map(patient => `
+    patientsGrid.innerHTML = patients.map(patient => {
+        // Handle both MySQL and SQLite data structures
+        const fullName = patient.name || `${patient.first_name} ${patient.last_name}`;
+        const nameParts = patient.name ? patient.name.split(' ') : [patient.first_name, patient.last_name];
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        return `
         <div class="patient-card" onclick="openPatientModal(${patient.id})">
             <div class="patient-actions">
                 <button class="action-btn edit" onclick="event.stopPropagation(); editPatient(${patient.id})" title="Edit Patient">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="action-btn delete" onclick="event.stopPropagation(); deletePatient(${patient.id}, '${patient.first_name} ${patient.last_name}')" title="Delete Patient">
+                <button class="action-btn delete" onclick="event.stopPropagation(); deletePatient(${patient.id}, '${fullName}')" title="Delete Patient">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
             <h3>
                 <i class="fas fa-user"></i>
-                ${patient.first_name} ${patient.last_name}
+                ${fullName}
             </h3>
             <p><strong>ID:</strong> <span class="patient-id">${patient.patient_id}</span></p>
             <p><strong>Disease:</strong> ${patient.disease_diagnosis || 'Not diagnosed'}</p>
@@ -356,7 +364,8 @@ function displayPatients(patients) {
             <p><strong>Phone:</strong> ${patient.phone || 'Not provided'}</p>
             <p><strong>Added:</strong> ${formatDate(patient.created_at)}</p>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function handlePatientSearch() {
@@ -681,7 +690,7 @@ async function handleAddPatient(e) {
     }
     
     try {
-        const response = await fetch('/api/patients', {
+        const response = await fetch('/api/mysql/patients', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -727,13 +736,14 @@ async function openPatientModal(patientId) {
     
     try {
         // Load patient details
-        const patientResponse = await fetch(`/api/patients/${patientId}`, {
+        const patientResponse = await fetch(`/api/mysql/patient/${patientId}`, {
             credentials: 'include'
         });
         if (!patientResponse.ok) {
             throw new Error('Failed to load patient details');
         }
-        const patient = await patientResponse.json();
+        const patientResult = await patientResponse.json();
+        const patient = patientResult.data || patientResult; // Handle MySQL response format
         
         // Load patient reports
         const reportsResponse = await fetch(`/api/patients/${patientId}/reports`, {
@@ -745,7 +755,8 @@ async function openPatientModal(patientId) {
         const reports = await reportsResponse.json();
         
         // Update modal content
-        modalPatientName.textContent = `${patient.first_name} ${patient.last_name}`;
+        const fullName = patient.name || `${patient.first_name} ${patient.last_name}`;
+        modalPatientName.textContent = fullName;
         displayPatientDetails(patient);
         displayPatientReports(reports);
         
@@ -767,6 +778,9 @@ function closePatientModal() {
 }
 
 function displayPatientDetails(patient) {
+    // Handle both MySQL and SQLite data structures
+    const fullName = patient.name || `${patient.first_name} ${patient.last_name}`;
+    
     patientDetails.innerHTML = `
         <h4><i class="fas fa-user-circle"></i> Patient Information</h4>
         <div class="detail-grid">
@@ -776,7 +790,7 @@ function displayPatientDetails(patient) {
             </div>
             <div class="detail-item">
                 <span class="detail-label">Full Name</span>
-                <span class="detail-value">${patient.first_name} ${patient.last_name}</span>
+                <span class="detail-value">${fullName}</span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Date of Birth</span>

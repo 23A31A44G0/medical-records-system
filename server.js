@@ -1290,6 +1290,36 @@ app.use((error, req, res, next) => {
 });
 
 // 🚀 NEW: MySQL API Endpoints
+// Add patient to MySQL
+app.post('/api/mysql/patients', requireAuth, async (req, res) => {
+    try {
+        const { first_name, last_name, date_of_birth, gender, phone, email, address, city, state, zip_code, disease_diagnosis, symptoms } = req.body;
+        
+        // Generate patient ID
+        const patient_id = 'PAT' + Date.now().toString().slice(-6);
+        
+        const connection = await mysqlManager.pool.getConnection();
+        const [result] = await connection.execute(`
+            INSERT INTO patients (patient_id, name, date_of_birth, gender, age, phone, email, address, city, state, zip_code, disease_diagnosis, symptoms)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [patient_id, `${first_name} ${last_name}`, date_of_birth, gender, 
+            new Date().getFullYear() - new Date(date_of_birth).getFullYear(),
+            phone, email, address, city, state, zip_code, disease_diagnosis, symptoms]);
+        
+        connection.release();
+        
+        res.json({
+            success: true,
+            id: result.insertId,
+            patient_id: patient_id,
+            message: 'Patient added successfully to MySQL'
+        });
+    } catch (error) {
+        console.error('MySQL add patient error:', error);
+        res.status(500).json({ error: 'Failed to add patient to MySQL' });
+    }
+});
+
 // Get MySQL patient data
 app.get('/api/mysql/patient/:patientId', async (req, res) => {
     try {
